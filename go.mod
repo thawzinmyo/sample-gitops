@@ -1,3 +1,3 @@
-module github.com/thawzinmyo/hello-world-go
+<!-- module github.com/thawzinmyo/hello-world-go
 
-go 1.20
+go 1.20 -->
