@@ -18,6 +18,14 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: 1.20.0
+        
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: <span class="math-inline">\{\{ runner\.os \}\}\-go\-</span>{{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
 
     - name: Install dependencies
       run: go mod download
