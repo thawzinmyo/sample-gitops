@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: guestbook
+  name: demo
   namespace: argocd
 spec:
   project: default
   source:
-    repoURL: https://github.com/thawzinmyo/sample-app.git
+    repoURL: https://github.com/thawzinmyo/sample-gitops.git
     targetRevision: HEAD
-    path: guestbook
+    path: k8s_manifests
   destination:
     server: https://kubernetes.default.svc
-    namespace: guestbook
+    namespace: demo
     name: development
   syncPolicy:
     syncOptions:
