@@ -49,6 +49,15 @@ jobs:
     - name: Push the Docker image
       run: docker push ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}
 
+    - name: Update Image in deployment.yaml
+      uses: fjogeleit/yaml-update-action@main
+      with:
+        valueFile: 'k8s_manifests/deployment.yaml'
+        key: 'spec.template.spec.containers[0].image'
+        #propertyPath: 'file.version'
+        value: ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}
+        commitChange: true
+
 
 # name: Build and Push Docker Image
 
