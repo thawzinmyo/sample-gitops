@@ -64,6 +64,7 @@ jobs:
         git checkout main  # Make sure you are on the correct branch
         git add k8s_manifests/deployment.yaml
         git commit -m "Update deployment.yaml with Docker image: ${{ env.RELEASE_TAG }}"
+        git diff --cached k8s_manifests/deployment.yaml
         git push origin main  # Ensure this matches your target branch
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
