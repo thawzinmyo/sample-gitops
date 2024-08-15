@@ -53,7 +53,7 @@ jobs:
       uses: Charlyzzz/update-k8s-image
       with:
         manifest-path: k8s_manifests/deployment.yaml
-        new-image-tag: latest
+        new-image-tag: ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}
         container-name: hello-world-go
 
     # Example of using the output
