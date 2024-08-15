@@ -53,7 +53,8 @@ jobs:
       uses: fjogeleit/yaml-update-action@main
       with:
         valueFile: 'k8s_manifests/deployment.yaml'
-        propertyPath: 'spec.template.spec.containers[0].image'
+        key: 'spec.template.spec.containers[0].image'
+        #propertyPath: 'file.version'
         value: ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}
         commitChange: true
 
