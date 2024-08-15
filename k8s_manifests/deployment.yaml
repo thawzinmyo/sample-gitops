@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: demo
-        image: 171017/hello-world-go:v1.0.11 #docker.io/171017/hello-world-go:latest
+        image: 171017/hello-world-go:v1.0.14 #docker.io/171017/hello-world-go:v1.0.14
         ports:
         - containerPort: 8080
