@@ -10,7 +10,9 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4   
+      with:
+        ref: main
 
     - name: Set up Go
       uses: actions/setup-go@v5
@@ -52,13 +54,14 @@ jobs:
     - name: Replace image placeholder in deployment.yaml
       run: sed -i "s|dockerhub_image|${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}|g" k8s_manifests/deployment.yaml
 
-    - name: Commit changes
+    - name: Commit and push changes
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git checkout main  # Make sure you are on the correct branch
         git add k8s_manifests/deployment.yaml
         git commit -m "Update deployment.yaml with Docker image: ${{ env.RELEASE_TAG }}"
-        git push origin main
+        git push origin main  # Ensure this matches your target branch
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
