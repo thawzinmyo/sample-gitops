@@ -54,6 +54,9 @@ jobs:
     - name: Replace image placeholder in deployment.yaml
       run: sed -i "s|dockerhub_image|${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}|g" k8s_manifests/deployment.yaml
 
+    - name: Check the Deploy Image
+      run: cat k8s_manifests/deployment.yaml
+      
     - name: Commit and push changes
       run: |
         git config --global user.name "github-actions[bot]"
