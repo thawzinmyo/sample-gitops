@@ -57,16 +57,16 @@ jobs:
     - name: Check the Deploy Image
       run: cat k8s_manifests/deployment.yaml
 
-    # - name: Commit and push changes
-    #   run: |
-    #     git config --global user.name "github-actions[bot]"
-    #     git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-    #     git checkout main  # Make sure you are on the correct branch
-    #     git add k8s_manifests/deployment.yaml
-    #     git commit -m "Update deployment.yaml with Docker image: ${{ env.RELEASE_TAG }}"
-    #     git push origin main  # Ensure this matches your target branch
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git checkout main  # Make sure you are on the correct branch
+        git add k8s_manifests/deployment.yaml
+        git commit -m "Update deployment.yaml with Docker image: ${{ env.RELEASE_TAG }}"
+        git push origin main  # Ensure this matches your target branch
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     # - name: Update Image in deployment.yaml
     #   uses: fjogeleit/yaml-update-action@main
@@ -78,11 +78,11 @@ jobs:
     #     noCompatMode: false
     #     quotingType: "'"
     #     branch: main  # Update to 'main' if 'master' is incorrect
-        # token: ${{ secrets.GITHUB_TOKEN }}  # Use GITHUB_TOKEN or your custom token
-        # commitUserName: github-actions[bot]
-        # commitUserEmail: 41898282+github-actions[bot]@users.noreply.github.com
-        # createPR: false
-        # updateFile: true
+    #     token: ${{ secrets.GITHUB_TOKEN }}  # Use GITHUB_TOKEN or your custom token
+    #     commitUserName: github-actions[bot]
+    #     commitUserEmail: 41898282+github-actions[bot]@users.noreply.github.com
+    #     createPR: false
+    #     updateFile: true
 
 
 # name: Build and Push Docker Image
