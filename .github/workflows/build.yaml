@@ -52,7 +52,7 @@ jobs:
       run: docker push ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}
 
     - name: Replace image placeholder in deployment.yaml
-      run: sed -i "s|dockerhub_image|${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}|g" k8s_manifests/deployment.yaml
+      run: sed -i "s|${{ secrets.DOCKER_USERNAME }}/hello-world-go:[^ ]*|${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}|g" k8s_manifests/deployment.yaml
 
     - name: Check the Deploy Image
       run: cat k8s_manifests/deployment.yaml
