@@ -59,11 +59,11 @@ jobs:
         noCompatMode: false
         quotingType: "'"
         branch: main  # Update to 'main' if 'master' is incorrect
-        token: ${{ secrets.GITHUB_TOKEN }}  # Use GITHUB_TOKEN or your custom token
-        commitUserName: github-actions[bot]
-        commitUserEmail: 41898282+github-actions[bot]@users.noreply.github.com
-        createPR: false
-        updateFile: true
+        # token: ${{ secrets.GITHUB_TOKEN }}  # Use GITHUB_TOKEN or your custom token
+        # commitUserName: github-actions[bot]
+        # commitUserEmail: 41898282+github-actions[bot]@users.noreply.github.com
+        # createPR: false
+        # updateFile: true
 
 
 # name: Build and Push Docker Image
