@@ -69,6 +69,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Show committed changes
+      run: |
+        git diff HEAD^ HEAD -- k8s_manifests/deployment.yaml
+
+
     # - name: Update Image in deployment.yaml
     #   uses: fjogeleit/yaml-update-action@main
     #   with:
