@@ -56,6 +56,14 @@ jobs:
         propertyPath: 'spec.template.spec.containers[0].image'
         value: ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}
         commitChange: true
+        noCompatMode: false
+        quotingType: "'"
+        branch: main  # Update to 'main' if 'master' is incorrect
+        masterBranchName: main  # Update to 'main' if 'master' is incorrect
+        targetBranch: main  # Update to 'main' if 'master' is incorrect
+        #token: ${{ secrets.GITHUB_TOKEN }}  # Use GITHUB_TOKEN or your custom token
+        commitUserName: github-actions[bot]
+        commitUserEmail: 41898282+github-actions[bot]@users.noreply.github.com
 
 
 # name: Build and Push Docker Image
