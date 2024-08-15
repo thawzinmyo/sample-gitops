@@ -49,43 +49,21 @@ jobs:
     - name: Push the Docker image
       run: docker push ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}
 
-    - id: update-image
-      uses: Charlyzzz/update-k8s-image
+    - name: Update Image in deployment.yaml
+      uses: fjogeleit/yaml-update-action@main
       with:
-        manifest-path: k8s_manifests/deployment.yaml
-        new-image-tag: latest
-        container-name: hello-world-go
-
-    # Example of using the output
-    - id: test
-      run: curl ${{ steps.update-image.outputs.old-image-tag }}
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    # - name: Update Image in deployment.yaml
-    #   uses: fjogeleit/yaml-update-action@main
-    #   with:
-    #     valueFile: 'k8s_manifests/deployment.yaml'
-    #     propertyPath: 'spec.template.spec.containers[0].image'
-    #     value: ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}
-    #     commitChange: true
-    #     noCompatMode: false
-    #     quotingType: "'"
-    #     branch: main  # Update to 'main' if 'master' is incorrect
-    #     #token: ${{ secrets.GITHUB_TOKEN }}  # Use GITHUB_TOKEN or your custom token
-    #     commitUserName: github-actions[bot]
-    #     commitUserEmail: 41898282+github-actions[bot]@users.noreply.github.com
-    #     createPR: false
-    #     updateFile: true
+        valueFile: 'k8s_manifests/deployment.yaml'
+        propertyPath: 'spec.template.spec.containers[0].image'
+        value: ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}
+        commitChange: true
+        noCompatMode: false
+        quotingType: "'"
+        branch: main  # Update to 'main' if 'master' is incorrect
+        token: ${{ secrets.GITHUB_TOKEN }}  # Use GITHUB_TOKEN or your custom token
+        commitUserName: github-actions[bot]
+        commitUserEmail: 41898282+github-actions[bot]@users.noreply.github.com
+        createPR: false
+        updateFile: true
 
 
 # name: Build and Push Docker Image
