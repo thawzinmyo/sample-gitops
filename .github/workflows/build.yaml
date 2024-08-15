@@ -49,16 +49,29 @@ jobs:
     - name: Push the Docker image
       run: docker push ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}
 
-    - name: Update Image in deployment.yaml
-      uses: fjogeleit/yaml-update-action@main
-      with:
-        valueFile: 'k8s_manifests/deployment.yaml'
-        propertyPath: 'spec.template.spec.containers[0].image'
-        value: ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}
-        commitChange: true
-        noCompatMode: false
-        quotingType: "'"
-        branch: main  # Update to 'main' if 'master' is incorrect
+    - name: Replace image placeholder in deployment.yaml
+      run: sed -i "s|dockerhub_image|${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}|g" k8s_manifests/deployment.yaml
+
+    - name: Commit changes
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add k8s_manifests/deployment.yaml
+        git commit -m "Update deployment.yaml with Docker image: ${{ env.RELEASE_TAG }}"
+        git push origin main
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # - name: Update Image in deployment.yaml
+    #   uses: fjogeleit/yaml-update-action@main
+    #   with:
+    #     valueFile: 'k8s_manifests/deployment.yaml'
+    #     propertyPath: 'spec.template.spec.containers[0].image'
+    #     value: ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}
+    #     commitChange: true
+    #     noCompatMode: false
+    #     quotingType: "'"
+    #     branch: main  # Update to 'main' if 'master' is incorrect
         # token: ${{ secrets.GITHUB_TOKEN }}  # Use GITHUB_TOKEN or your custom token
         # commitUserName: github-actions[bot]
         # commitUserEmail: 41898282+github-actions[bot]@users.noreply.github.com
