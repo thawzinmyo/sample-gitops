@@ -30,12 +30,17 @@ jobs:
         env:
           JAVA_HOME: ${{ env.JAVA_HOME }}
         run: |
-          # Determine the correct path to cacerts
-          CACERTS_PATH="$JAVA_HOME/lib/security/cacerts"
-          if [ ! -f "$CACERTS_PATH" ]; then
-            echo "Could not find cacerts at $CACERTS_PATH"
-            CACERTS_PATH="/etc/ssl/certs/java/cacerts"  # Alternative path
+          # Locate the actual path of cacerts by checking common directories
+          CACERTS_PATH=$(find "$JAVA_HOME" -name "cacerts" 2>/dev/null | head -n 1)
+          
+          # If cacerts not found, log an error and exit
+          if [ -z "$CACERTS_PATH" ]; then
+            echo "Could not find the cacerts file. Ensure the Java truststore path is correct."
+            exit 1
           fi
+
+          echo "Found cacerts at $CACERTS_PATH"
+          
           # Fetch certificate and save as sonar_cert.pem
           openssl s_client -showcerts -connect sonarqube.z-unified.com:443 </dev/null 2>/dev/null | openssl x509 -outform PEM > sonar_cert.pem
           
