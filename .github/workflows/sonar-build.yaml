@@ -1,4 +1,4 @@
-name: Build
+name: SonarQube Scan Code
 
 on:
   release:
@@ -11,13 +11,22 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: sonarsource/sonarqube-scan-action@v3
+
+      - name: Install SSL Certificate in TrustStore
+        run: |
+          openssl s_client -showcerts -connect <sonarqube-server-url>:443 </dev/null 2>/dev/null | openssl x509 -outform PEM > sonar_cert.pem
+          sudo keytool -importcert -file sonar_cert.pem -alias sonar_cert -keystore $JAVA_HOME/lib/security/cacerts -storepass changeit -noprompt
+
+      - name: Run SonarScanner CLI
+        uses: sonarsource/sonarqube-scan-action@v3
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_SCANNER_OPTS: "-Djavax.net.ssl.trustStore=$JAVA_HOME/lib/security/cacerts
       # If you wish to fail your job when the Quality Gate is red, uncomment the
       # following lines. This would typically be used to fail a deployment.
       # - uses: sonarsource/sonarqube-quality-gate-action@master
