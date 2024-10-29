@@ -31,7 +31,7 @@ jobs:
           JAVA_HOME: ${{ env.JAVA_HOME }}
         run: |
           # Fetch certificate and save as sonar_cert.pem
-          openssl s_client -showcerts -connect your-sonarqube-server.com:443 </dev/null 2>/dev/null | openssl x509 -outform PEM > sonar_cert.pem
+          openssl s_client -showcerts -connect sonarqube.z-unified.com:443 </dev/null 2>/dev/null | openssl x509 -outform PEM > sonar_cert.pem
           
           # Import the certificate to the JVM truststore
           sudo keytool -importcert -file sonar_cert.pem -alias sonar_cert -keystore "$JAVA_HOME/lib/security/cacerts" -storepass changeit -noprompt
