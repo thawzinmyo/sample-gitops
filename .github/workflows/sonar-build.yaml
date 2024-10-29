@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build and analyze
+    name: Build and analyze with SonarQube
     runs-on: ubuntu-latest
     
     steps:
@@ -33,7 +33,7 @@ jobs:
       - name: Install SSL Certificate in TrustStore
         run: |
           openssl s_client -showcerts -connect sonarqube.z-unified.com:443 </dev/null 2>/dev/null | openssl x509 -outform PEM > sonar_cert.pem
-          sudo keytool -importcert -file sonar_cert.pem -alias sonar_cert -keystore $JAVA_HOME/lib/security/cacerts -storepass changeit -noprompt
+          sudo keytool -importcert -file sonar_cert.pem -alias sonar_cert -cacerts -storepass changeit -noprompt
 
       - name: Run SonarScanner CLI
         uses: sonarsource/sonarqube-scan-action@v3
