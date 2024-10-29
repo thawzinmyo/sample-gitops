@@ -19,7 +19,7 @@ jobs:
       
       - name: Check Connectivity
         run: |
-          nc -zv https://sonarqube.z-unified.com 443
+          nc -zv sonarqube.z-unified.com 443
 
 
       - name: Install SSL Certificate in TrustStore
