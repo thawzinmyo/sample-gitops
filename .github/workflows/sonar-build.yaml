@@ -31,6 +31,13 @@ jobs:
           keytool -import -alias sonarqube -file fullchain.crt -keystore sonarqube-truststore.jks -storepass changeit -noprompt
           keytool -list -v -keystore sonarqube-truststore.jks -storepass changeit
 
+      - name: Verify truststore file existence
+        run: ls -la /home/runner/work/sample-gitops/sample-gitops/
+
+      - name: Set permissions on truststore
+        run: chmod 644 /home/runner/work/sample-gitops/sample-gitops/sonarqube-truststore.jks
+
+
       - name: Run SonarQube Scan with Custom Trust Store
         env:
           SONAR_SCANNER_OPTS: "-Djavax.net.ssl.trustStore=/home/runner/work/sample-gitops/sample-gitops/sonarqube-truststore.jks -Djavax.net.ssl.trustStorePassword=changeit -Djavax.net.debug=ssl,handshake,trustmanager"
