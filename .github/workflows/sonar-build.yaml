@@ -18,7 +18,8 @@ jobs:
       - name: Add SonarQube server certificate
         run: |
           echo "${{ secrets.SONARQUBE_CERT }}" > sonarqube-ca.crt
-          keytool -import -alias sonarqube -file sonarqube-ca.crt -cacerts -storepass changeit -noprompt
+          # Create a new trust store and add the SonarQube certificate
+          keytool -import -alias sonarqube -file sonarqube-ca.crt -keystore sonarqube-truststore.jks -storepass changeit -noprompt
       # - name: Disable SSL verification for self-signed cert
       #   run: |
       #     export SONAR_SCANNER_OPTS="-Djavax.net.ssl.trustStoreType=none"
