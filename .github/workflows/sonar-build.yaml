@@ -15,9 +15,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Disable SSL verification (if needed for self-signed cert)
+      - name: Add SonarQube server certificate
         run: |
-          export NODE_TLS_REJECT_UNAUTHORIZED=0
+          echo "${{ secrets.SONARQUBE_CERT }}" > /usr/local/share/ca-certificates/sonarqube.crt
+          update-ca-certificates
       - uses: sonarsource/sonarqube-scan-action@v3
         with:
           projectBaseDir: .
