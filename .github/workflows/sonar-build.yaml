@@ -24,6 +24,17 @@ jobs:
         with:
           distribution: 'temurin'  # Choose Java distribution (temurin is from AdoptOpenJDK)
           java-version: '17'       # Specify the Java version
+
+      # Step 3: Run SonarLint with the specified Java Runtime
+      - name: Run SonarLint Analysis
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.java-home }}  # Pass the configured JAVA_HOME
+        run: |
+          # Check JAVA_HOME to verify
+          echo "Using Java runtime at: $JAVA_HOME"
+          
+          # Run SonarLint or SonarScanner, depending on your setup
+          sonar-scanner -Dsonar.java.jdkHome="$JAVA_HOME"
       
       - name: Check Connectivity
         run: |
