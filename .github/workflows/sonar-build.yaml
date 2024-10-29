@@ -15,14 +15,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-          
+
       - name: Retrieve SonarQube Certificate Chain
         run: |
           # Retrieve the full certificate chain from SonarQube server
           openssl s_client -showcerts -connect sonarqube.z-unified.com:443 </dev/null 2>/dev/null | awk '/BEGIN/,/END/{ if(/BEGIN/){a++}; out="cert"a".pem"; print >out}'
           
-          # Concatenate the retrieved certificates into one full chain file
-          cat cert1.pem cert2.pem cert3.pem > fullchain.crt
+          # Dynamically concatenate the retrieved certificates into a single full chain file
+          cat cert*.pem > fullchain.crt || echo "Only one certificate retrieved, proceeding with single certificate."
+
 
       - name: Create a custom Java trust store for SonarQube
         run: |
