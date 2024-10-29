@@ -12,61 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      # Step 1: Check out the code
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      # Step 2: Set up Java (Specify the version you need here)
-      - name: Set up Java for SonarScanner
-        uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
-        id: setup_java
-
-      - name: Fetch SonarQube Certificate and Add to Truststore
-        env:
-          JAVA_HOME: ${{ steps.setup_java.outputs.java-home }}
-        run: |
-          # Define the SonarQube server
-          SERVER_URL="sonarqube.z-unified.com"
-          
-          # Download the certificate from the SonarQube server
-          echo "Fetching certificate for $SERVER_URL"
-          openssl s_client -showcerts -connect $SERVER_URL:443 </dev/null 2>/dev/null | openssl x509 -outform PEM > sonarqube_cert.pem
-
-          # Locate the cacerts file dynamically
-          CACERTS_PATH=$(find "$JAVA_HOME" -name "cacerts" | head -n 1)
-          if [ -z "$CACERTS_PATH" ]; then
-            echo "Could not find the cacerts file."
-            exit 1
-          fi
-
-          # Import the certificate into the Java keystore
-          sudo keytool -importcert -file sonarqube_cert.pem -alias sonarqube-cert -keystore "$CACERTS_PATH" -storepass changeit -noprompt
-          
-          # Clean up
-          rm sonarqube_cert.pem
-
-      - name: Run SonarCloud Action for Go Project
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: "https://sonarqube.z-unified.com"
-          JAVA_HOME: ${{ env.JAVA_HOME }}
-        with:
-          args: |
-            -Djavax.net.ssl.trustStore="$CACERTS_PATH" \
-            -Djavax.net.ssl.trustStorePassword=changeit \
-            -Dsonar.projectKey=your-go-project-key \
-            -Dsonar.projectVersion=1.0 \
-            -Dsonar.sources=./ \
-            -Dsonar.language=go
-            
-      - name: Run SonarScanner CLI
-        uses: sonarsource/sonarqube-scan-action@v3
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: sonarsource/sonarqube-scan-action@v3
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          #SONAR_SCANNER_OPTS: "-Dsonar.ssl.verify=false"
-          SONAR_SCANNER_OPTS: "-Djavax.net.ssl.trustStore=$JAVA_HOME/lib/security/cacerts -Djavax.net.ssl.trustStorePassword=changeit"
