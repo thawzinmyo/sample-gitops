@@ -1,103 +1,8 @@
-name: Build and Push Docker Image
-
-on:
-  release:
-    types: [created]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4   
-      with:
-        ref: main
-
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: 1.20.0
-
-    - name: Extract tag
-      id: extract_tag
-      run: echo "RELEASE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-        
-    - name: Cache dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/go/pkg/mod
-        key: <span class="math-inline">\{\{ runner\.os \}\}\-go\-</span>{{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
-
-    - name: Install dependencies
-      run: go mod download
-
-    - # Add support for more platforms with QEMU (optional)
-       # https://github.com/docker/setup-qemu-action
-       name: Set up QEMU
-       uses: docker/setup-qemu-action@v3
-    
-    - name: Build the Docker image
-      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }} .
-
-    - name: Login to DockerHub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-
-    - name: Push the Docker image
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}
-
-    - name: Replace image placeholder in deployment.yaml
-      run: sed -i "s|${{ secrets.DOCKER_USERNAME }}/hello-world-go:[^ ]*|${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}|g" k8s_manifests/deployment.yaml
-
-    - name: Check the Deploy Image
-      run: cat k8s_manifests/deployment.yaml
-
-    - name: Commit and push changes
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git checkout main  # Make sure you are on the correct branch
-        git add k8s_manifests/deployment.yaml
-        git commit -m "Update deployment.yaml with Docker image: ${{ env.RELEASE_TAG }}"
-        git diff --cached k8s_manifests/deployment.yaml
-        git push origin main  # Ensure this matches your target branch
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Show committed changes
-      run: |
-        git diff HEAD^ HEAD -- k8s_manifests/deployment.yaml
-
-
-    # - name: Update Image in deployment.yaml
-    #   uses: fjogeleit/yaml-update-action@main
-    #   with:
-    #     valueFile: 'k8s_manifests/deployment.yaml'
-    #     propertyPath: 'spec.template.spec.containers[0].image'
-    #     value: ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}
-    #     commitChange: true
-    #     noCompatMode: false
-    #     quotingType: "'"
-    #     branch: main  # Update to 'main' if 'master' is incorrect
-    #     token: ${{ secrets.GITHUB_TOKEN }}  # Use GITHUB_TOKEN or your custom token
-    #     commitUserName: github-actions[bot]
-    #     commitUserEmail: 41898282+github-actions[bot]@users.noreply.github.com
-    #     createPR: false
-    #     updateFile: true
-
-
 # name: Build and Push Docker Image
 
 # on:
-#   push:
-#     branches:
-#       - main
-#       - development
+#   release:
+#     types: [created]
 
 # jobs:
 #   build:
@@ -105,12 +10,18 @@ jobs:
 
 #     steps:
 #     - name: Checkout repository
-#       uses: actions/checkout@v4
+#       uses: actions/checkout@v4   
+#       with:
+#         ref: main
 
 #     - name: Set up Go
 #       uses: actions/setup-go@v5
 #       with:
 #         go-version: 1.20.0
+
+#     - name: Extract tag
+#       id: extract_tag
+#       run: echo "RELEASE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
         
 #     - name: Cache dependencies
 #       uses: actions/cache@v3
@@ -128,8 +39,8 @@ jobs:
 #        name: Set up QEMU
 #        uses: docker/setup-qemu-action@v3
     
-#     -  name: Set up Docker Buildx
-#        uses: docker/setup-buildx-action@v3
+#     - name: Build the Docker image
+#       run: docker build -t ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }} .
 
 #     - name: Login to DockerHub
 #       uses: docker/login-action@v3
@@ -137,10 +48,99 @@ jobs:
 #         username: ${{ secrets.DOCKER_USERNAME }}
 #         password: ${{ secrets.DOCKER_PASSWORD }}
 
-#     - name: Build and push Docker image
-#       uses: docker/build-push-action@v4
-#       with:
-#         context: .
-#         file: Dockerfile
-#         push: true
-#         tags: ${{ secrets.DOCKER_USERNAME }}/hello-world-go:latest
+#     - name: Push the Docker image
+#       run: docker push ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}
+
+#     - name: Replace image placeholder in deployment.yaml
+#       run: sed -i "s|${{ secrets.DOCKER_USERNAME }}/hello-world-go:[^ ]*|${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}|g" k8s_manifests/deployment.yaml
+
+#     - name: Check the Deploy Image
+#       run: cat k8s_manifests/deployment.yaml
+
+#     - name: Commit and push changes
+#       run: |
+#         git config --global user.name "github-actions[bot]"
+#         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+#         git checkout main  # Make sure you are on the correct branch
+#         git add k8s_manifests/deployment.yaml
+#         git commit -m "Update deployment.yaml with Docker image: ${{ env.RELEASE_TAG }}"
+#         git diff --cached k8s_manifests/deployment.yaml
+#         git push origin main  # Ensure this matches your target branch
+#       env:
+#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+#     - name: Show committed changes
+#       run: |
+#         git diff HEAD^ HEAD -- k8s_manifests/deployment.yaml
+
+
+#     # - name: Update Image in deployment.yaml
+#     #   uses: fjogeleit/yaml-update-action@main
+#     #   with:
+#     #     valueFile: 'k8s_manifests/deployment.yaml'
+#     #     propertyPath: 'spec.template.spec.containers[0].image'
+#     #     value: ${{ secrets.DOCKER_USERNAME }}/hello-world-go:${{ env.RELEASE_TAG }}
+#     #     commitChange: true
+#     #     noCompatMode: false
+#     #     quotingType: "'"
+#     #     branch: main  # Update to 'main' if 'master' is incorrect
+#     #     token: ${{ secrets.GITHUB_TOKEN }}  # Use GITHUB_TOKEN or your custom token
+#     #     commitUserName: github-actions[bot]
+#     #     commitUserEmail: 41898282+github-actions[bot]@users.noreply.github.com
+#     #     createPR: false
+#     #     updateFile: true
+
+
+# # name: Build and Push Docker Image
+
+# # on:
+# #   push:
+# #     branches:
+# #       - main
+# #       - development
+
+# # jobs:
+# #   build:
+# #     runs-on: ubuntu-latest
+
+# #     steps:
+# #     - name: Checkout repository
+# #       uses: actions/checkout@v4
+
+# #     - name: Set up Go
+# #       uses: actions/setup-go@v5
+# #       with:
+# #         go-version: 1.20.0
+        
+# #     - name: Cache dependencies
+# #       uses: actions/cache@v3
+# #       with:
+# #         path: ~/go/pkg/mod
+# #         key: <span class="math-inline">\{\{ runner\.os \}\}\-go\-</span>{{ hashFiles('**/go.sum') }}
+# #         restore-keys: |
+# #           ${{ runner.os }}-go-
+
+# #     - name: Install dependencies
+# #       run: go mod download
+
+# #     - # Add support for more platforms with QEMU (optional)
+# #        # https://github.com/docker/setup-qemu-action
+# #        name: Set up QEMU
+# #        uses: docker/setup-qemu-action@v3
+    
+# #     -  name: Set up Docker Buildx
+# #        uses: docker/setup-buildx-action@v3
+
+# #     - name: Login to DockerHub
+# #       uses: docker/login-action@v3
+# #       with:
+# #         username: ${{ secrets.DOCKER_USERNAME }}
+# #         password: ${{ secrets.DOCKER_PASSWORD }}
+
+# #     - name: Build and push Docker image
+# #       uses: docker/build-push-action@v4
+# #       with:
+# #         context: .
+# #         file: Dockerfile
+# #         push: true
+# #         tags: ${{ secrets.DOCKER_USERNAME }}/hello-world-go:latest
