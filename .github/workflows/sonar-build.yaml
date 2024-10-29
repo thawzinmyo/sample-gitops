@@ -17,8 +17,9 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Add SonarQube server certificate
         run: |
-          echo "${{ secrets.SONARQUBE_CERT }}" > /usr/local/share/ca-certificates/sonarqube.crt
-          update-ca-certificates
+          echo "${{ secrets.SONARQUBE_CERT }}" | sudo tee /usr/local/share/ca-certificates/sonarqube.crt > /dev/null
+          sudo update-ca-certificates
+        shell: bash
       - uses: sonarsource/sonarqube-scan-action@v3
         with:
           projectBaseDir: .
