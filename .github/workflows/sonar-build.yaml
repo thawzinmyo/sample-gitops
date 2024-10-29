@@ -64,7 +64,7 @@ jobs:
       - name: Run SonarLint Analysis with Debug
         env:
           JAVA_HOME: ${{ env.JAVA_HOME }}
-          SONAR_HOST_URL: sonarqube.z-unified.com  # Replace with your actual server URL
+          SONAR_HOST_URL: https://sonarqube.z-unified.com  # Replace with your actual server URL
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           # Verify Java setup
