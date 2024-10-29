@@ -40,7 +40,7 @@ jobs:
           openssl s_client -showcerts -connect sonarqube.z-unified.com:443 </dev/null 2>/dev/null | openssl x509 -outform PEM > sonar_cert.pem
           
           # Import the certificate to the JVM truststore
-          sudo keytool -importcert -file sonar_cert.pem -alias sonar_cert -keystore "$JAVA_HOME/lib/security/cacerts" -storepass changeit -noprompt
+          sudo keytool -importcert -file sonar_cert.pem -alias sonar_cert -keystore "$CACERTS_PATH" -storepass changeit -noprompt
 
       # Step 4: Install SonarScanner CLI
       - name: Install SonarScanner
@@ -61,7 +61,7 @@ jobs:
           echo "Using Java runtime at: $JAVA_HOME"
           
           # Run SonarScanner CLI with debug logging enabled
-          sonar-scanner -X -Djavax.net.ssl.trustStore="$JAVA_HOME/lib/security/cacerts" -Djavax.net.ssl.trustStorePasswor
+          sonar-scanner -X -Djavax.net.ssl.trustStore="$CACERTS_PATH" -Djavax.net.ssl.trustStorePasswor
       
       - name: Check Connectivity
         run: |
