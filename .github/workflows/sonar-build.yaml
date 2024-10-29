@@ -17,12 +17,11 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Add SonarQube server certificate
         run: |
-          echo "${{ secrets.SONARQUBE_CERT }}" | sudo tee /usr/local/share/ca-certificates/sonarqube.crt > /dev/null
-          sudo update-ca-certificates
-        shell: bash
-      - name: Disable SSL verification for self-signed cert
-        run: |
-          export SONAR_SCANNER_OPTS="-Djavax.net.ssl.trustStoreType=none"
+          echo "${{ secrets.SONARQUBE_CERT }}" > sonarqube-ca.crt
+          keytool -import -alias sonarqube -file sonarqube-ca.crt -cacerts -storepass changeit -noprompt
+      # - name: Disable SSL verification for self-signed cert
+      #   run: |
+      #     export SONAR_SCANNER_OPTS="-Djavax.net.ssl.trustStoreType=none"
       - uses: sonarsource/sonarqube-scan-action@v3
         with:
           projectBaseDir: .
