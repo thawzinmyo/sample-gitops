@@ -29,10 +29,11 @@ jobs:
         run: |
           # Create the trust store and import the full certificate chain
           keytool -import -alias sonarqube -file fullchain.crt -keystore sonarqube-truststore.jks -storepass changeit -noprompt
+          keytool -list -v -keystore sonarqube-truststore.jks -storepass changeit
 
       - name: Run SonarQube Scan with Custom Trust Store
         env:
-          SONAR_SCANNER_OPTS: "-Djavax.net.ssl.trustStore=${{ github.workspace }}/sonarqube-truststore.jks -Djavax.net.ssl.trustStorePassword=changeit"
+          SONAR_SCANNER_OPTS: "-Djavax.net.ssl.trustStore=/home/runner/work/sample-gitops/sample-gitops/sonarqube-truststore.jks -Djavax.net.ssl.trustStorePassword=changeit -Djavax.net.debug=ssl,handshake,trustmanager"
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         uses: sonarsource/sonarqube-scan-action@v3
