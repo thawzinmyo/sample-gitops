@@ -30,8 +30,13 @@ jobs:
         env:
           JAVA_HOME: ${{ env.JAVA_HOME }}
         run: |
-          # Locate the actual path of cacerts by checking common directories
-          CACERTS_PATH=$(find "$JAVA_HOME" -name "cacerts" 2>/dev/null | head -n 1)
+          # Display JAVA_HOME contents for debugging
+          echo "JAVA_HOME is set to $JAVA_HOME"
+          echo "Contents of $JAVA_HOME:"
+          ls -R "$JAVA_HOME"
+
+          # Locate the actual path of cacerts by checking broader directories
+          CACERTS_PATH=$(find "$JAVA_HOME" /etc/ssl/certs/java /usr/lib/jvm -name "cacerts" 2>/dev/null | head -n 1)
           
           # If cacerts not found, log an error and exit
           if [ -z "$CACERTS_PATH" ]; then
@@ -40,7 +45,7 @@ jobs:
           fi
 
           echo "Found cacerts at $CACERTS_PATH"
-          
+
           # Fetch certificate and save as sonar_cert.pem
           openssl s_client -showcerts -connect sonarqube.z-unified.com:443 </dev/null 2>/dev/null | openssl x509 -outform PEM > sonar_cert.pem
           
