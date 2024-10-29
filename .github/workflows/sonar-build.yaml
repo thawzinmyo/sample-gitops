@@ -12,10 +12,18 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      # Step 1: Check out the code
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+
+      # Step 2: Set up Java (Specify the version you need here)
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'  # Choose Java distribution (temurin is from AdoptOpenJDK)
+          java-version: '17'       # Specify the Java version
       
       - name: Check Connectivity
         run: |
