@@ -54,7 +54,7 @@ jobs:
           echo "$DTRACK_CERT" > dtrack_cert.pem
 
           # Run the curl command using the certificate
-          curl -X POST "$DTRACK_API_URL/api/v1/bom" \
+          curl -X "POST" "https://apidtrack.z-unified.com/api/v1/bom" \
             -H "Content-Type: multipart/form-data" \
             -H "X-API-Key: $DTRACK_API_KEY" \
             --cacert dtrack_cert.pem \
