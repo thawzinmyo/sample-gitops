@@ -1,35 +1,44 @@
 name: SonarQube Scan Code
 
 on:
-  release:
-    types: [created]
+  push:
+    branches:
+      - development
 
 
 jobs:
   build:
-    name: Build and analyze
+    name: Build and analyze with SonarQube
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
-      - name: Install SSL Certificate in TrustStore
+      - name: Retrieve SonarQube Certificate Chain
         run: |
-          openssl s_client -showcerts -connect <sonarqube-server-url>:443 </dev/null 2>/dev/null | openssl x509 -outform PEM > sonar_cert.pem
-          sudo keytool -importcert -file sonar_cert.pem -alias sonar_cert -keystore $JAVA_HOME/lib/security/cacerts -storepass changeit -noprompt
+          # Retrieve the full certificate chain from SonarQube server
+          openssl s_client -showcerts -connect sonarqube.z-unified.com:443 </dev/null 2>/dev/null | awk '/BEGIN/,/END/{ if(/BEGIN/){a++}; out="cert"a".pem"; print >out}'
+          
+          # Dynamically concatenate the retrieved certificates into a single full chain file
+          cat cert*.pem > fullchain.crt || echo "Only one certificate retrieved, proceeding with single certificate."
+      
+      - name: Create a custom Java trust store for SonarQube
+        run: |
+          # Create the trust store and import the full certificate chain
+          keytool -import -alias sonarqube -file fullchain.crt -keystore sonarqube-truststore.jks -storepass changeit -noprompt
+          #keytool -list -v -keystore sonarqube-truststore.jks -storepass changeit
+      
+      - name: Verify truststore file existence
+        run: ls -la /home/runner/work/sample-gitops/sample-gitops/
 
-      - name: Run SonarScanner CLI
-        uses: sonarsource/sonarqube-scan-action@v3
+      - name: Set permissions on truststore
+        run: chmod 644 /home/runner/work/sample-gitops/sample-gitops/sonarqube-truststore.jks
+
+      - name: Run SonarQube Scan with Custom Trust Store
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_SCANNER_OPTS: "-Djavax.net.ssl.trustStore=/home/runner/work/sample-gitops/sample-gitops/sonarqube-truststore.jks -Djavax.net.ssl.trustStorePassword=changeit"
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONAR_SCANNER_OPTS: "-Djavax.net.ssl.trustStore=$JAVA_HOME/lib/security/cacerts
-      # If you wish to fail your job when the Quality Gate is red, uncomment the
-      # following lines. This would typically be used to fail a deployment.
-      # - uses: sonarsource/sonarqube-quality-gate-action@master
-      #   timeout-minutes: 5
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        uses: sonarsource/sonarqube-scan-action@v3
+        with:
