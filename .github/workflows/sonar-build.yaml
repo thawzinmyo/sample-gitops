@@ -1,48 +1,127 @@
-name: SonarQube Scan Code
+name: Build and Analyze
 
 on:
   push:
     branches:
       - development
+
 jobs:
-  build:
-    name: Build and analyze with SonarQube
+  build-and-scan:
+    name: Generate SBOM, Upload to Dependency Track, and Run SonarQube Scan
     runs-on: ubuntu-latest
-    
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0  # Complete clone for analysis
 
-      - name: List files
-        run: ls -la /home/runner/work/sample-gitops/sample-gitops/
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.18'  # Specify your Go version
 
-      - name: Run SonarQube Scan with Custom Trust Store in Secret of GitHub Actions
+      - name: Build Go project
+        run: go build ./...
+
+      # CycloneDX Step
+      - name: Download CycloneDX CLI
+        run: |
+          wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.1/cyclonedx-linux-x64
+          chmod +x cyclonedx-linux-x64
+
+      - name: Generate SBOM with CycloneDX
+        run: |
+          ./cyclonedx-linux-x64 convert --input-format go-mod --output-format xml --output-file sbom.xml
+
+      # Dependency Track Upload
+      - name: Upload SBOM to Dependency Track
+        env:
+          DTRACK_API_URL: ${{ secrets.DTRACK_API_URL }}
+          DTRACK_API_KEY: ${{ secrets.DTRACK_API_KEY }}
+        run: |
+          curl -X POST "$DTRACK_API_URL/api/v1/bom" \
+          -H "Content-Type: multipart/form-data" \
+          -H "X-API-Key: $DTRACK_API_KEY" \
+          -F "autoCreate=true" \
+          -F "projectName=YourProjectName" \
+          -F "bom=@sbom.xml"
+
+      # SonarQube Scan
+      - name: Run SonarQube Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONAR_ROOT_CERT: ${{ secrets.SONARQUBE_CERT }}
+          SONARQUBE_CERT: ${{ secrets.SONARQUBE_CERT }}
         uses: sonarsource/sonarqube-scan-action@v3
         with:
           projectBaseDir: .
 
-      # Generate SBOM (example uses CycloneDX)
-      - name: Generate SBOM
-        run: |
-          wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.1/cyclonedx-linux-x64
-          ./cyclonedx-linux-x64 version
-          ./cyclonedx-linux-x64 create -o sbom.cdx.json -j .
 
-      # Upload SBOM to Dependency Track
-      - name: Upload SBOM to Dependency Track
-        env:
-          DTRACK_API_KEY: ${{ secrets.DTRACK_API_KEY }}
-          DTRACK_API_URL: ${{ secrets.DTRACK_API_URL }}
-        run: |
-          curl -X POST "$DTRACK_API_URL/api/v1/bom" \
-          -H "Content-Type: application/json" \
-          -H "X-Api-Key: $DTRACK_API_KEY" \
-          --data-binary @sbom.cdx.json
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# name: SonarQube Scan Code
+
+# on:
+#   push:
+#     branches:
+#       - development
+# jobs:
+#   build:
+#     name: Build and analyze with SonarQube
+#     runs-on: ubuntu-latest
+    
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+
+#       - name: List files
+#         run: ls -la /home/runner/work/sample-gitops/sample-gitops/
+
+#       - name: Run SonarQube Scan with Custom Trust Store in Secret of GitHub Actions
+#         env:
+#           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+#           SONAR_ROOT_CERT: ${{ secrets.SONARQUBE_CERT }}
+#         uses: sonarsource/sonarqube-scan-action@v3
+#         with:
+#           projectBaseDir: .
+
+#       # Generate SBOM (example uses CycloneDX)
+#       - name: Generate SBOM
+#         run: |
+#           wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.1/cyclonedx-linux-x64
+#           chmod +x cyclonedx-linux-x64
+#           ./cyclonedx-linux-x64 --version
+
+#       # Upload SBOM to Dependency Track
+#       - name: Upload SBOM to Dependency Track
+#         env:
+#           DTRACK_API_KEY: ${{ secrets.DTRACK_API_KEY }}
+#           DTRACK_API_URL: ${{ secrets.DTRACK_API_URL }}
+#         run: |
+#           curl -X POST "$DTRACK_API_URL/api/v1/bom" \
+#           -H "Content-Type: application/json" \
+#           -H "X-Api-Key: $DTRACK_API_KEY" \
+#           --data-binary @sbom.cdx.json
 
 
 
