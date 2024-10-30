@@ -35,8 +35,8 @@ jobs:
       # Convert SBOM to XML using CycloneDX CLI
       - name: Download CycloneDX CLI
         run: |
-          wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.1/cyclonedx-linux-x64.tar.gz
-          tar -xzf cyclonedx-linux-x64.tar.gz
+          wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.1/cyclonedx-linux-x64
+          ./cyclonedx-linux-x64 --version
           chmod +x cyclonedx-linux-x64
 
       - name: Convert SBOM to XML
