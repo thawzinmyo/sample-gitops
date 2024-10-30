@@ -36,8 +36,8 @@ jobs:
       - name: Download CycloneDX CLI
         run: |
           wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.1/cyclonedx-linux-x64
-          ./cyclonedx-linux-x64 --version
-          chmod +x cyclonedx-linux-x64
+          sudo ./cyclonedx-linux-x64 --version
+          sudo chmod +x cyclonedx-linux-x64
 
       - name: Convert SBOM to XML
         run: |
