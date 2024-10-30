@@ -30,7 +30,7 @@ jobs:
 
       - name: Generate SBOM with CycloneDX-Go
         run: |
-          $GOPATH/bin/cyclonedx-gomod mod -o sbom.json
+          ${GITHUB_WORKSPACE}/go/bin/cyclonedx-gomod mod -o sbom.json
 
       # Convert SBOM to XML using CycloneDX CLI
       - name: Download CycloneDX CLI
