@@ -19,20 +19,29 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.18'  # Specify your Go version
+          go-version: '1.23'  # Specify your Go version
 
       - name: Build Go project
         run: go build ./...
 
-      # CycloneDX Step
+      # Generate SBOM using CycloneDX-Go
+      - name: Install CycloneDX-Go
+        run: go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@latest
+
+      - name: Generate SBOM with CycloneDX-Go
+        run: |
+          $GOPATH/bin/cyclonedx-gomod mod -o sbom.json
+
+      # Convert SBOM to XML using CycloneDX CLI
       - name: Download CycloneDX CLI
         run: |
-          wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.1/cyclonedx-linux-x64
+          wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.1/cyclonedx-linux-x64.tar.gz
+          tar -xzf cyclonedx-linux-x64.tar.gz
           chmod +x cyclonedx-linux-x64
 
-      - name: Generate SBOM with CycloneDX
+      - name: Convert SBOM to XML
         run: |
-          ./cyclonedx-linux-x64 convert --input-format go-mod --output-format xml --output-file sbom.xml
+          ./cyclonedx-linux-x64 convert --input-file sbom.json --output-format xml --output-file sbom.xml
 
       # Dependency Track Upload
       - name: Upload SBOM to Dependency Track
