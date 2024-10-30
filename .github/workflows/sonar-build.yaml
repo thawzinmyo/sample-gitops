@@ -16,26 +16,23 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
-      - name: Retrieve SonarQube Certificate Chain
-        run: |
-          # Retrieve the full certificate chain from SonarQube server
-          openssl s_client -showcerts -connect sonarqube.z-unified.com:443 </dev/null 2>/dev/null | awk '/BEGIN/,/END/{ if(/BEGIN/){a++}; out="cert"a".pem"; print >out}'
+      # - name: Retrieve SonarQube Certificate Chain
+      #   run: |
+      #     # Retrieve the full certificate chain from SonarQube server
+      #     openssl s_client -showcerts -connect sonarqube.z-unified.com:443 </dev/null 2>/dev/null | awk '/BEGIN/,/END/{ if(/BEGIN/){a++}; out="cert"a".pem"; print >out}'
           
-          # Dynamically concatenate the retrieved certificates into a single full chain file
-          cat cert*.pem > fullchain.crt || echo "Only one certificate retrieved, proceeding with single certificate."
+      #     # Dynamically concatenate the retrieved certificates into a single full chain file
+      #     cat cert*.pem > fullchain.crt || echo "Only one certificate retrieved, proceeding with single certificate."
 
 
-      - name: Create a custom Java trust store for SonarQube
-        run: |
-          # Create the trust store and import the full certificate chain
-          keytool -import -alias sonarqube -file fullchain.crt -keystore sonarqube-truststore.jks -storepass changeit -noprompt
-          keytool -list -v -keystore sonarqube-truststore.jks -storepass changeit
+      # - name: Create a custom Java trust store for SonarQube
+      #   run: |
+      #     # Create the trust store and import the full certificate chain
+      #     keytool -import -alias sonarqube -file fullchain.crt -keystore sonarqube-truststore.jks -storepass changeit -noprompt
+      #     keytool -list -v -keystore sonarqube-truststore.jks -storepass changeit
 
       - name: Verify truststore file existence
         run: ls -la /home/runner/work/sample-gitops/sample-gitops/
-
-      # - name: Set permissions on truststore
-      #   run: chmod 644 /home/runner/work/sample-gitops/sample-gitops/sonarqube-truststore.jks
 
       - name: Run SonarQube Scan with Custom Trust Store
         env:
