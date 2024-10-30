@@ -60,6 +60,7 @@ jobs:
             --cacert dtrack_cert.pem \
             -F "autoCreate=true" \
             -F "projectName=TCP_API" \
+            -F "projectVersion=1.0.0" \
             -F "bom=@sbom.xml"
 
       - name: List files
