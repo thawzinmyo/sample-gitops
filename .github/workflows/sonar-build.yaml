@@ -57,9 +57,9 @@ jobs:
           curl -X POST "$DTRACK_API_URL/api/v1/bom" \
             -H "Content-Type: multipart/form-data" \
             -H "X-API-Key: $DTRACK_API_KEY" \
-            --cert dtrack_cert.pem \
+            --cacert dtrack_cert.pem \
             -F "autoCreate=true" \
-            -F "projectName=YourProjectName" \
+            -F "projectName=TCP_API" \
             -F "bom=@sbom.xml"
 
       # SonarQube Scan
