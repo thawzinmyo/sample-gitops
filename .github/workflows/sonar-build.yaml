@@ -62,12 +62,14 @@ jobs:
             -F "projectName=TCP_API" \
             -F "bom=@sbom.xml"
 
-      # SonarQube Scan
-      - name: Run SonarQube Scan
+      - name: List files
+        run: ls -la /home/runner/work/sample-gitops/sample-gitops/
+
+      - name: Run SonarQube Scan with Custom Trust Store in Secret of GitHub Actions
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONARQUBE_CERT: ${{ secrets.SONARQUBE_CERT }}
+          SONAR_ROOT_CERT: ${{ secrets.SONARQUBE_CERT }}
         uses: sonarsource/sonarqube-scan-action@v3
         with:
           projectBaseDir: .
