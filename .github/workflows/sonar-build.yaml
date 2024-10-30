@@ -48,13 +48,19 @@ jobs:
         env:
           DTRACK_API_URL: ${{ secrets.DTRACK_API_URL }}
           DTRACK_API_KEY: ${{ secrets.DTRACK_API_KEY }}
+          DTRACK_CERT: ${{ secrets.DTRACK_CERT }}
         run: |
+          # Save the certificate to a file for use with curl
+          echo "$DTRACK_CERT" > dtrack_cert.pem
+
+          # Run the curl command using the certificate
           curl -X POST "$DTRACK_API_URL/api/v1/bom" \
-          -H "Content-Type: multipart/form-data" \
-          -H "X-API-Key: $DTRACK_API_KEY" \
-          -F "autoCreate=true" \
-          -F "projectName=YourProjectName" \
-          -F "bom=@sbom.xml"
+            -H "Content-Type: multipart/form-data" \
+            -H "X-API-Key: $DTRACK_API_KEY" \
+            --cert dtrack_cert.pem \
+            -F "autoCreate=true" \
+            -F "projectName=YourProjectName" \
+            -F "bom=@sbom.xml"
 
       # SonarQube Scan
       - name: Run SonarQube Scan
