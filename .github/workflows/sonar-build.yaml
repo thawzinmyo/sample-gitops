@@ -29,7 +29,7 @@ jobs:
       # Generate SBOM (example uses CycloneDX)
       - name: Generate SBOM
         run: |
-          curl -sSL https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.1/cyclonedx-linux-x64
+          wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.1/cyclonedx-linux-x64
           ./cyclonedx-linux-x64 version
           ./cyclonedx-linux-x64 create -o sbom.cdx.json -j .
 
