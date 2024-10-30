@@ -26,6 +26,28 @@ jobs:
         with:
           projectBaseDir: .
 
+      # Generate SBOM (example uses CycloneDX)
+      - name: Generate SBOM
+        run: |
+          curl -sSL https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.1/cyclonedx-linux-x64
+          ./cyclonedx-linux-x64 version
+          ./cyclonedx-linux-x64 create -o sbom.cdx.json -j .
+
+      # Upload SBOM to Dependency Track
+      - name: Upload SBOM to Dependency Track
+        env:
+          DTRACK_API_KEY: ${{ secrets.DTRACK_API_KEY }}
+          DTRACK_API_URL: ${{ secrets.DTRACK_API_URL }}
+        run: |
+          curl -X POST "$DTRACK_API_URL/api/v1/bom" \
+          -H "Content-Type: application/json" \
+          -H "X-Api-Key: $DTRACK_API_KEY" \
+          --data-binary @sbom.cdx.json
+
+
+
+
+
 
 
 
