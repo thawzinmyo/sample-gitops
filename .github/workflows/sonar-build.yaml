@@ -34,8 +34,8 @@ jobs:
       - name: Verify truststore file existence
         run: ls -la /home/runner/work/sample-gitops/sample-gitops/
 
-      - name: Set permissions on truststore
-        run: chmod 644 /home/runner/work/sample-gitops/sample-gitops/sonarqube-truststore.jks
+      # - name: Set permissions on truststore
+      #   run: chmod 644 /home/runner/work/sample-gitops/sample-gitops/sonarqube-truststore.jks
 
       - name: Run SonarQube Scan with Custom Trust Store
         env:
