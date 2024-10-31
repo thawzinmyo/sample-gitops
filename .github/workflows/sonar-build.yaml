@@ -31,41 +31,41 @@ jobs:
       - name: Install CycloneDX-Go
         run: go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@latest
 
-      # - name: Generate SBOM with CycloneDX-Go
-      #   run: |
-      #     /home/runner/go/bin/cyclonedx-gomod mod -licenses -type application -json -output sbom.json .
+      - name: Generate SBOM with CycloneDX-Go
+        run: |
+          /home/runner/go/bin/cyclonedx-gomod mod -licenses -type application -json -output sbom.json .
 
-      # # Convert SBOM to XML using CycloneDX CLI
-      # - name: Download CycloneDX CLI
-      #   run: |
-      #     wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.1/cyclonedx-linux-x64
-      #     sudo chmod +x cyclonedx-linux-x64
-      #     sudo ./cyclonedx-linux-x64 --version
+      # Convert SBOM to XML using CycloneDX CLI
+      - name: Download CycloneDX CLI
+        run: |
+          wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.1/cyclonedx-linux-x64
+          sudo chmod +x cyclonedx-linux-x64
+          sudo ./cyclonedx-linux-x64 --version
 
-      # - name: Convert SBOM to XML
-      #   run: |
-      #     ./cyclonedx-linux-x64 convert --input-file sbom.json --output-format xml --output-file sbom.xml
+      - name: Convert SBOM to XML
+        run: |
+          ./cyclonedx-linux-x64 convert --input-file sbom.json --output-format xml --output-file sbom.xml
 
-      # # Dependency Track Upload
-      # - name: Upload SBOM to Dependency Track
-      #   env:
-      #     DTRACK_API_URL: ${{ secrets.DTRACK_API_URL }}
-      #     DTRACK_API_KEY: ${{ secrets.DTRACK_API_KEY }}
-      #     DTRACK_CERT: ${{ secrets.DTRACK_CERT }}
-      #   run: |
-      #     # Save the certificate to a file for use with curl
-      #     echo "$DTRACK_CERT" > dtrack_cert.pem
+      # Dependency Track Upload
+      - name: Upload SBOM to Dependency Track
+        env:
+          DTRACK_API_URL: ${{ secrets.DTRACK_API_URL }}
+          DTRACK_API_KEY: ${{ secrets.DTRACK_API_KEY }}
+          DTRACK_CERT: ${{ secrets.DTRACK_CERT }}
+        run: |
+          # Save the certificate to a file for use with curl
+          echo "$DTRACK_CERT" > dtrack_cert.pem
 
-      #     # Run the curl command using the certificate
-      #     curl -X "POST" "$DTRACK_API_URL/api/v1/bom" \
-      #       -H "Content-Type: multipart/form-data" \
-      #       -H "X-API-Key: $DTRACK_API_KEY" \
-      #       --cacert dtrack_cert.pem \
-      #       -F "autoCreate=true" \
-      #       -F "projectName=TCP_API" \
-      #       -F "projectVersion=1.0.2" \
-      #       -F "isLatest=true" \
-      #       -F "bom=@sbom.xml"
+          # Run the curl command using the certificate
+          curl -X "POST" "$DTRACK_API_URL/api/v1/bom" \
+            -H "Content-Type: multipart/form-data" \
+            -H "X-API-Key: $DTRACK_API_KEY" \
+            --cacert dtrack_cert.pem \
+            -F "autoCreate=true" \
+            -F "projectName=TCP_API" \
+            -F "projectVersion=1.0.2" \
+            -F "isLatest=true" \
+            -F "bom=@sbom.xml"
 
       # - name: List files
       #   run: ls -la /home/runner/work/sample-gitops/sample-gitops/
