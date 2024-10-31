@@ -8,7 +8,7 @@ on:
 jobs:
   build-and-scan:
     name: Generate SBOM, Upload to Dependency Track, and Run SonarQube Scan
-    runs-on: self-hosted #ubuntu-latest
+    runs-on: ubuntu-latest #ubuntu-latest
 
     steps:
       - name: Check out repository
