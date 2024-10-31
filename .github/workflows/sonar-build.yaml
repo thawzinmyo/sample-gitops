@@ -57,8 +57,10 @@ jobs:
         run: go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@latest
 
       - name: Generate SBOM with CycloneDX-Go
+        env:
+          PATH: ${{ env.HOME }}/go/bin:${{ env.PATH }}
         run: |
-          /home/runner/go/bin/cyclonedx-gomod mod -licenses -type application -json -output sbom.json .
+          cyclonedx-gomod mod -licenses -type application -json -output sbom.json .
 
       # Convert SBOM to XML using CycloneDX CLI
       - name: Download CycloneDX CLI
