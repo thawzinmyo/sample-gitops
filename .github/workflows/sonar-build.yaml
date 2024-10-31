@@ -18,6 +18,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Complete clone for analysis
+        
+      - name: List the Checkout Files
+        run: ls -al
+
+      # Cache Go modules
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: go-mod-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            go-mod-
 
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -26,6 +38,19 @@ jobs:
 
       - name: Build Go project
         run: go build ./...
+
+      # Install and Cache CycloneDX CLI
+      - name: Cache CycloneDX CLI
+        uses: actions/cache@v3
+        with:
+          path: cyclonedx-linux-x64
+          key: cyclonedx-cli-v0.27.1
+
+      - name: Download CycloneDX CLI (if not cached)
+        if: steps.cache-cyclonedx.outputs.cache-hit != 'true'
+        run: |
+          wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.1/cyclonedx-linux-x64
+          sudo chmod +x cyclonedx-linux-x64
 
       # Generate SBOM using CycloneDX-Go
       - name: Install CycloneDX-Go
