@@ -27,9 +27,9 @@ jobs:
       - name: Build Go project
         run: go build ./...
 
-      # # Generate SBOM using CycloneDX-Go
-      # - name: Install CycloneDX-Go
-      #   run: go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@latest
+      # Generate SBOM using CycloneDX-Go
+      - name: Install CycloneDX-Go
+        run: go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@latest
 
       # - name: Generate SBOM with CycloneDX-Go
       #   run: |
