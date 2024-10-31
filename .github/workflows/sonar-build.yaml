@@ -94,17 +94,17 @@ jobs:
             -F "isLatest=true" \
             -F "bom=@sbom.xml"
 
-      # - name: List files
-      #   run: ls -la /home/runner/work/sample-gitops/sample-gitops/
+      - name: List files
+        run: ls -la /home/runner/work/sample-gitops/sample-gitops/
 
-      # - name: Run SonarQube Scan with Custom Trust Store in Secret of GitHub Actions
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      #     SONAR_ROOT_CERT: ${{ secrets.SONARQUBE_CERT }}
-      #   uses: sonarsource/sonarqube-scan-action@v3
-      #   with:
-      #     projectBaseDir: .
+      - name: Run SonarQube Scan with Custom Trust Store in Secret of GitHub Actions
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_ROOT_CERT: ${{ secrets.SONARQUBE_CERT }}
+        uses: sonarsource/sonarqube-scan-action@v3
+        with:
+          projectBaseDir: .
 
 
 
