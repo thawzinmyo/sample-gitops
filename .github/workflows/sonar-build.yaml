@@ -16,6 +16,16 @@ jobs:
         with:
           fetch-depth: 0  # Complete clone for analysis
 
+      # Add Docker verification steps
+      - name: Verify Docker Installation
+        run: |
+          docker version
+          docker info
+          # Ensure Docker daemon is running and accessible
+          docker ps
+          # Verify buildx installation
+          docker buildx version || echo "Buildx not available"
+
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
