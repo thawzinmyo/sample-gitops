@@ -94,9 +94,6 @@ jobs:
             -F "isLatest=true" \
             -F "bom=@sbom.xml"
 
-      - name: List files
-        run: ls -la /home/runner/work/sample-gitops/sample-gitops/
-
       - name: Run SonarQube Scan with Custom Trust Store in Secret of GitHub Actions
         env:
           DOCKER_BUILDKIT: 0
