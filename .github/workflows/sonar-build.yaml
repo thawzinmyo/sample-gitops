@@ -16,9 +16,15 @@ jobs:
 
       - name: Test Docker Pull
         run: docker pull hello-world
-        
+
       - name: Test Docker Run
-        run: docker run hello-world
+        run: docker run hello-
+        
+      - name: Run Docker Build without Buildx
+        run: |
+          export DOCKER_BUILDKIT=0
+          docker build -t test-image .
+
 
 
       # - name: Check out repository
