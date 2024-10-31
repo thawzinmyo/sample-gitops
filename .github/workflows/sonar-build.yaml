@@ -19,10 +19,10 @@ jobs:
         with:
           fetch-depth: 0  # Complete clone for analysis
 
-      # - name: Set up Go
-      #   uses: actions/setup-go@v4
-      #   with:
-      #     go-version: '1.23'  # Specify your Go version
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23'  # Specify your Go version
 
       # - name: Build Go project
       #   run: go build ./...
