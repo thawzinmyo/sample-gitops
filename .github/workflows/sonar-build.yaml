@@ -11,80 +11,83 @@ jobs:
     runs-on: ubuntu-latest #ubuntu-latest
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Complete clone for analysis
+      - name: Check Docker Info
+        run: docker info
 
-      # Add Docker verification steps
-      - name: Verify Docker Installation
-        run: |
-          docker version
-          docker info
-          # Ensure Docker daemon is running and accessible
-          docker ps
-          # Verify buildx installation
-          docker buildx version || echo "Buildx not available"
+      # - name: Check out repository
+      #   uses: actions/checkout@v4
+      #   with:
+      #     fetch-depth: 0  # Complete clone for analysis
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.23'  # Specify your Go version
+      # # Add Docker verification steps
+      # - name: Verify Docker Installation
+      #   run: |
+      #     docker version
+      #     docker info
+      #     # Ensure Docker daemon is running and accessible
+      #     docker ps
+      #     # Verify buildx installation
+      #     docker buildx version || echo "Buildx not available"
 
-      - name: Build Go project
-        run: go build ./...
+      # - name: Set up Go
+      #   uses: actions/setup-go@v4
+      #   with:
+      #     go-version: '1.23'  # Specify your Go version
 
-      # Generate SBOM using CycloneDX-Go
-      - name: Install CycloneDX-Go
-        run: go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@latest
+      # - name: Build Go project
+      #   run: go build ./...
 
-      - name: Generate SBOM with CycloneDX-Go
-        run: |
-          /home/runner/go/bin/cyclonedx-gomod mod -licenses -type application -json -output sbom.json .
+      # # Generate SBOM using CycloneDX-Go
+      # - name: Install CycloneDX-Go
+      #   run: go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@latest
 
-      # Convert SBOM to XML using CycloneDX CLI
-      - name: Download CycloneDX CLI
-        run: |
-          wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.1/cyclonedx-linux-x64
-          sudo chmod +x cyclonedx-linux-x64
-          sudo ./cyclonedx-linux-x64 --version
+      # - name: Generate SBOM with CycloneDX-Go
+      #   run: |
+      #     /home/runner/go/bin/cyclonedx-gomod mod -licenses -type application -json -output sbom.json .
 
-      - name: Convert SBOM to XML
-        run: |
-          ./cyclonedx-linux-x64 convert --input-file sbom.json --output-format xml --output-file sbom.xml
+      # # Convert SBOM to XML using CycloneDX CLI
+      # - name: Download CycloneDX CLI
+      #   run: |
+      #     wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.27.1/cyclonedx-linux-x64
+      #     sudo chmod +x cyclonedx-linux-x64
+      #     sudo ./cyclonedx-linux-x64 --version
 
-      # Dependency Track Upload
-      - name: Upload SBOM to Dependency Track
-        env:
-          DTRACK_API_URL: ${{ secrets.DTRACK_API_URL }}
-          DTRACK_API_KEY: ${{ secrets.DTRACK_API_KEY }}
-          DTRACK_CERT: ${{ secrets.DTRACK_CERT }}
-        run: |
-          # Save the certificate to a file for use with curl
-          echo "$DTRACK_CERT" > dtrack_cert.pem
+      # - name: Convert SBOM to XML
+      #   run: |
+      #     ./cyclonedx-linux-x64 convert --input-file sbom.json --output-format xml --output-file sbom.xml
 
-          # Run the curl command using the certificate
-          curl -X "POST" "$DTRACK_API_URL/api/v1/bom" \
-            -H "Content-Type: multipart/form-data" \
-            -H "X-API-Key: $DTRACK_API_KEY" \
-            --cacert dtrack_cert.pem \
-            -F "autoCreate=true" \
-            -F "projectName=TCP_API" \
-            -F "projectVersion=1.0.2" \
-            -F "isLatest=true" \
-            -F "bom=@sbom.xml"
+      # # Dependency Track Upload
+      # - name: Upload SBOM to Dependency Track
+      #   env:
+      #     DTRACK_API_URL: ${{ secrets.DTRACK_API_URL }}
+      #     DTRACK_API_KEY: ${{ secrets.DTRACK_API_KEY }}
+      #     DTRACK_CERT: ${{ secrets.DTRACK_CERT }}
+      #   run: |
+      #     # Save the certificate to a file for use with curl
+      #     echo "$DTRACK_CERT" > dtrack_cert.pem
 
-      - name: List files
-        run: ls -la /home/runner/work/sample-gitops/sample-gitops/
+      #     # Run the curl command using the certificate
+      #     curl -X "POST" "$DTRACK_API_URL/api/v1/bom" \
+      #       -H "Content-Type: multipart/form-data" \
+      #       -H "X-API-Key: $DTRACK_API_KEY" \
+      #       --cacert dtrack_cert.pem \
+      #       -F "autoCreate=true" \
+      #       -F "projectName=TCP_API" \
+      #       -F "projectVersion=1.0.2" \
+      #       -F "isLatest=true" \
+      #       -F "bom=@sbom.xml"
 
-      - name: Run SonarQube Scan with Custom Trust Store in Secret of GitHub Actions
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONAR_ROOT_CERT: ${{ secrets.SONARQUBE_CERT }}
-        uses: sonarsource/sonarqube-scan-action@v3
-        with:
-          projectBaseDir: .
+      # - name: List files
+      #   run: ls -la /home/runner/work/sample-gitops/sample-gitops/
+
+      # - name: Run SonarQube Scan with Custom Trust Store in Secret of GitHub Actions
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      #     SONAR_ROOT_CERT: ${{ secrets.SONARQUBE_CERT }}
+      #   uses: sonarsource/sonarqube-scan-action@v3
+      #   with:
+      #     projectBaseDir: .
 
 
 
