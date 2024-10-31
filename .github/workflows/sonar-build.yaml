@@ -14,6 +14,13 @@ jobs:
       - name: Check Docker Info
         run: docker info
 
+      - name: Test Docker Pull
+        run: docker pull hello-world
+        
+      - name: Test Docker Run
+        run: docker run hello-world
+
+
       # - name: Check out repository
       #   uses: actions/checkout@v4
       #   with:
