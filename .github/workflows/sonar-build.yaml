@@ -16,22 +16,6 @@ jobs:
         with:
           fetch-depth: 0  # Complete clone for analysis
 
-      # Add Docker setup steps
-      - name: Setup Docker
-        run: |
-          # Install docker buildx
-          sudo mkdir -p ~/.docker/cli-plugins/
-          sudo curl -SL https://github.com/docker/buildx/releases/download/v0.12.1/buildx-v0.12.1.linux-amd64 -o ~/.docker/cli-plugins/docker-buildx
-          sudo chmod a+x ~/.docker/cli-plugins/docker-buildx
-          
-          # Fix permissions
-          sudo usermod -aG docker $USER
-          sudo systemctl restart docker
-          
-          # Verify setup
-          docker info
-          docker buildx version
-
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
