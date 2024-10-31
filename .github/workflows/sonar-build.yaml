@@ -14,33 +14,10 @@ jobs:
       - name: Check Docker Info
         run: docker info
 
-      - name: Test Docker Pull
-        run: docker pull hello-world
-
-      - name: Test Docker Run
-        run: docker run hello-world
-        
-      - name: Run Docker Build without Buildx
-        run: |
-          export DOCKER_BUILDKIT=0
-          docker build -t test-image .
-
-
-
-      # - name: Check out repository
-      #   uses: actions/checkout@v4
-      #   with:
-      #     fetch-depth: 0  # Complete clone for analysis
-
-      # # Add Docker verification steps
-      # - name: Verify Docker Installation
-      #   run: |
-      #     docker version
-      #     docker info
-      #     # Ensure Docker daemon is running and accessible
-      #     docker ps
-      #     # Verify buildx installation
-      #     docker buildx version || echo "Buildx not available"
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Complete clone for analysis
 
       # - name: Set up Go
       #   uses: actions/setup-go@v4
