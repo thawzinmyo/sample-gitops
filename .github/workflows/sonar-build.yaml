@@ -99,6 +99,7 @@ jobs:
 
       - name: Run SonarQube Scan with Custom Trust Store in Secret of GitHub Actions
         env:
+          DOCKER_BUILDKIT: 0
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_ROOT_CERT: ${{ secrets.SONARQUBE_CERT }}
