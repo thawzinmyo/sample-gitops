@@ -1,0 +1,61 @@
+name: Database Schema Deployment
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'db/changelog/**'
+  workflow_dispatch:
+
+jobs:
+  deploy-schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      # Set up Azure CLI
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+      # Create Azure Self-hosted Runner in the same VNET
+      - name: Create Azure Container Instance
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az container create \
+              --name github-runner-${{ github.run_id }} \
+              --resource-group your-rg-name \
+              --image myrunnerimage:latest \
+              --vnet-name your-vnet-name \
+              --subnet your-subnet-name \
+              --registry-login-server your-acr.azurecr.io \
+              --registry-username ${{ secrets.ACR_USERNAME }} \
+              --registry-password ${{ secrets.ACR_PASSWORD }} \
+              --environment-variables \
+                PAT=${{ secrets.GH_PAT }} \
+                REPO=${{ github.repository }} \
+                RUNNER_NAME=dbdeploy-${{ github.run_id }}
+
+      # Run Liquibase in the container
+      - name: Execute Liquibase
+        uses: azure/container-actions@v1
+        with:
+          container-name: github-runner-${{ github.run_id }}
+          command: |
+            liquibase \
+              --changeLogFile=db/changelog/db.changelog-master.xml \
+              --url="jdbc:sqlserver://your-server.database.windows.net:1433;database=your-db;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;" \
+              --username=${{ secrets.DB_USERNAME }} \
+              --password=${{ secrets.DB_PASSWORD }} \
+              update
+
+      # Cleanup
+      - name: Delete Azure Container Instance
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az container delete \
+              --name github-runner-${{ github.run_id }} \
+              --resource-group your-rg-name \
+              --yes
